@@ -60,6 +60,8 @@
             this.chartPanel.TabIndex = 0;
             this.chartPanel.SizeChanged += new System.EventHandler(this.chartPanel_SizeChanged);
             this.chartPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.chartPanel_Paint);
+            this.chartPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.chartPanel_MouseMove);
+            this.chartPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this.chartPanel_MouseUp);
             // 
             // menuStrip1
             // 
@@ -119,6 +121,8 @@
             this.splitContainer1.Size = new System.Drawing.Size(800, 450);
             this.splitContainer1.SplitterDistance = 556;
             this.splitContainer1.TabIndex = 3;
+            this.splitContainer1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.splitContainer1_KeyDown);
+            this.splitContainer1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.splitContainer1_KeyPress);
             // 
             // channelListView
             // 
@@ -135,7 +139,8 @@
             this.channelListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.channelListView.Location = new System.Drawing.Point(0, 0);
             this.channelListView.Name = "channelListView";
-            this.channelListView.RowHeadersVisible = false;
+            this.channelListView.RowHeadersWidth = 10;
+            this.channelListView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.channelListView.Size = new System.Drawing.Size(240, 450);
             this.channelListView.TabIndex = 0;
             this.channelListView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.channelListView_CellClick);
@@ -185,9 +190,6 @@
             this.Controls.Add(this.menuStrip1);
             this.Name = "StripChart";
             this.Text = "Strip Chart";
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.StripChart_KeyDown);
-            this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.StripChart_KeyPress);
-            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.StripChart_KeyUp);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);

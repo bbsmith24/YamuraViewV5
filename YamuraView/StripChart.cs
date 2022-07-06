@@ -13,6 +13,9 @@ namespace YamuraView
 {
     public partial class StripChart : Form
     {
+        bool dragStart = false;
+        int dragSession = 0;
+        int mouseLast = 0;
         List<Color> colors = new List<Color>();
 
         List<ChannelDisplayInfo> channels = new List<ChannelDisplayInfo>();
@@ -300,49 +303,78 @@ namespace YamuraView
             }
         }
 
-        private void StripChart_KeyPress(object sender, KeyPressEventArgs e)
+        private void splitContainer1_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if(e.KeyChar == '+')
-            {
-                foreach(ChannelDisplayInfo channel in channels)
-                {
-                    if(channel.SessionIdx == 0)
-                    {
-                        channel.AxisOffsetX[0] += 50.0F;
-                    }
-                }
-                chartPanel.Invalidate();
-            }
+            //if (e.KeyChar == '+')
+            //{
+            //    foreach (ChannelDisplayInfo channel in channels)
+            //    {
+            //        if (channel.SessionIdx == 0)
+            //        {
+            //            channel.AxisOffsetX[0] += 50.0F;
+            //        }
+            //    }
+            //    chartPanel.Invalidate();
+            //}
         }
 
-        private void StripChart_KeyDown(object sender, KeyEventArgs e)
+        private void splitContainer1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Add)
+            if (e.KeyCode == Keys.Right)
             {
                 foreach (ChannelDisplayInfo channel in channels)
                 {
                     if (channel.SessionIdx == 0)
                     {
-                        channel.AxisOffsetX[0] += 50.0F;
+                        channel.AxisOffsetX[0] += 1.0F;
                     }
                 }
                 chartPanel.Invalidate();
             }
-        }
-
-        private void StripChart_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Add)
+            else if (e.KeyCode == Keys.Left)
             {
                 foreach (ChannelDisplayInfo channel in channels)
                 {
                     if (channel.SessionIdx == 0)
                     {
-                        channel.AxisOffsetX[0] += 50.0F;
+                        channel.AxisOffsetX[0] -= 1.0F;
                     }
                 }
                 chartPanel.Invalidate();
+
             }
+        }
+
+        private void chartPanel_MouseMove(object sender, MouseEventArgs e)
+        {
+            if(e.Button == MouseButtons.Left)
+            {
+                if (dragStart == true)
+                {
+                    foreach (ChannelDisplayInfo channel in channels)
+                    {
+                        if (channel.SessionIdx == dragSession)
+                        {
+                            channel.AxisOffsetX[0] += mouseLast > e.X ? -1 : 1;
+                        }
+                    }
+                    chartPanel.Invalidate();
+                }
+                else
+                {
+                    dragStart = true;
+                    int curRow = channelListView.SelectedRows[0].Index;
+                    dragSession = Convert.ToInt32( channelListView.Rows[curRow].Cells[3].Value);
+
+                }
+                mouseLast = e.Location.X;
+
+            }
+        }
+
+        private void chartPanel_MouseUp(object sender, MouseEventArgs e)
+        {
+            dragStart = false;
         }
     }
 }
