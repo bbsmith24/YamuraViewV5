@@ -61,28 +61,28 @@
             // sessionsToolStripMenuItem
             // 
             this.sessionsToolStripMenuItem.Name = "sessionsToolStripMenuItem";
-            this.sessionsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.sessionsToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
             this.sessionsToolStripMenuItem.Text = "Manage Sessions";
             this.sessionsToolStripMenuItem.Click += new System.EventHandler(this.addSessionsMenuItem_Click);
             // 
             // addStripChartMenuItem
             // 
             this.addStripChartMenuItem.Name = "addStripChartMenuItem";
-            this.addStripChartMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addStripChartMenuItem.Size = new System.Drawing.Size(174, 22);
             this.addStripChartMenuItem.Text = "Add Strip Chart";
             this.addStripChartMenuItem.Click += new System.EventHandler(this.addStripChartMenuItem_Click);
             // 
             // addTractionCircleMenuItem
             // 
             this.addTractionCircleMenuItem.Name = "addTractionCircleMenuItem";
-            this.addTractionCircleMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addTractionCircleMenuItem.Size = new System.Drawing.Size(174, 22);
             this.addTractionCircleMenuItem.Text = "Add Traction Circle";
             this.addTractionCircleMenuItem.Click += new System.EventHandler(this.addTractionCircleMenuItem_Click);
             // 
             // addTrackMapMenuItem
             // 
             this.addTrackMapMenuItem.Name = "addTrackMapMenuItem";
-            this.addTrackMapMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addTrackMapMenuItem.Size = new System.Drawing.Size(174, 22);
             this.addTrackMapMenuItem.Text = "Add Track Map";
             this.addTrackMapMenuItem.Click += new System.EventHandler(this.addTrackMapMenuItem_Click);
             // 
@@ -95,7 +95,7 @@
             this.IsMdiContainer = true;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "YamuraViewMain";
-            this.Text = "Form1";
+            this.Text = "YamuraView V5";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);

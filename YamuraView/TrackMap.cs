@@ -22,23 +22,19 @@ namespace YamuraView
         private void chartPanel_Paint(object sender, PaintEventArgs e)
         {
             int width = chartPanel.Width;
-            int widthOffset = 0;
             int height = chartPanel.Height;
-            int heightOffset = 0;
-            if (width < height)
-            {
-                heightOffset = (height - width) / 2;
-                height = width;
-            }
-            if (height < width)
-            {
-                widthOffset = (width - height) / 2;
-                width = height;
-            }
-            Pen pathPen = new Pen(Color.Red);
+            Pen pathPen = new Pen(Color.Gray);
             GraphicsPath drawPath = new GraphicsPath();
-            drawPath.AddEllipse(widthOffset, heightOffset, width, height);
-            drawPath.CloseFigure();
+            for (int x = 0; x < width; x += 100)
+            {
+                drawPath.AddLine(x, 0, x, width);
+                drawPath.CloseFigure();
+            }
+            for (int y = height; y >= 0; y -= 100)
+            {
+                drawPath.AddLine(0, y, width, y);
+                drawPath.CloseFigure();
+            }
             using (Graphics chartGraphics = chartPanel.CreateGraphics())
             {
                 chartGraphics.Clear(chartPanel.BackColor);

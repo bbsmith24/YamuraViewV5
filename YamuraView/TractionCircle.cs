@@ -22,8 +22,10 @@ namespace YamuraView
         private void chartPanel_Paint(object sender, PaintEventArgs e)
         {
             int width = chartPanel.Width;
-            int widthOffset = 0;
             int height = chartPanel.Height;
+            int fullWidth = width;
+            int fullHeight = height;
+            int widthOffset = 0;
             int heightOffset = 0;
             if (width < height)
             {
@@ -35,10 +37,13 @@ namespace YamuraView
                 widthOffset = (width - height) / 2;
                 width = height;
             }
-            Pen pathPen = new Pen(Color.Red);
+            Pen pathPen = new Pen(Color.Gray);
             GraphicsPath drawPath = new GraphicsPath();
-            drawPath.AddEllipse(widthOffset, heightOffset, width, height);
-            //            drawPath.AddLine(0, 0, width, height);
+            drawPath.AddEllipse(widthOffset + 5, heightOffset + 5, width - 10, height - 10);
+            drawPath.CloseFigure();
+            drawPath.AddLine(fullWidth / 2, 0, fullWidth / 2 , fullHeight);
+            drawPath.CloseFigure();
+            drawPath.AddLine(0, fullHeight / 2, fullWidth, fullHeight / 2);
             drawPath.CloseFigure();
             //           drawPath.AddLine(width, 0, 0, height);
             using (Graphics chartGraphics = chartPanel.CreateGraphics())
@@ -46,6 +51,11 @@ namespace YamuraView
                 chartGraphics.Clear(chartPanel.BackColor);
                 chartGraphics.DrawPath(pathPen, drawPath);
             }
+        }
+
+        private void chartPanel_SizeChanged(object sender, EventArgs e)
+        {
+            chartPanel.Invalidate();
         }
     }
 }
