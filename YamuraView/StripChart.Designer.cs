@@ -39,7 +39,9 @@
             this.colShow = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colColor = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colChannel = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colSession = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -83,21 +85,21 @@
             // addChannelsMenuItem
             // 
             this.addChannelsMenuItem.Name = "addChannelsMenuItem";
-            this.addChannelsMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addChannelsMenuItem.Size = new System.Drawing.Size(177, 22);
             this.addChannelsMenuItem.Text = "Add Channel(s)";
             this.addChannelsMenuItem.Click += new System.EventHandler(this.addChannelsMenuItem_Click);
             // 
             // removeChannelsMenuItem
             // 
             this.removeChannelsMenuItem.Name = "removeChannelsMenuItem";
-            this.removeChannelsMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeChannelsMenuItem.Size = new System.Drawing.Size(177, 22);
             this.removeChannelsMenuItem.Text = "Remove Channel(s)";
             this.removeChannelsMenuItem.Click += new System.EventHandler(this.removeChannelsMenuItem_Click);
             // 
             // xAxisToolStripMenuItem
             // 
             this.xAxisToolStripMenuItem.Name = "xAxisToolStripMenuItem";
-            this.xAxisToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.xAxisToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
             this.xAxisToolStripMenuItem.Text = "X Axis";
             this.xAxisToolStripMenuItem.Click += new System.EventHandler(this.xAxisMenuItem_Click);
             // 
@@ -128,6 +130,7 @@
             this.colShow,
             this.colColor,
             this.colChannel,
+            this.colSession,
             this.colValue});
             this.channelListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.channelListView.Location = new System.Drawing.Point(0, 0);
@@ -135,6 +138,8 @@
             this.channelListView.RowHeadersVisible = false;
             this.channelListView.Size = new System.Drawing.Size(240, 450);
             this.channelListView.TabIndex = 0;
+            this.channelListView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.channelListView_CellClick);
+            this.channelListView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.channelListView_CellContentClick);
             // 
             // colShow
             // 
@@ -159,6 +164,11 @@
             this.colChannel.Name = "colChannel";
             this.colChannel.Width = 71;
             // 
+            // colSession
+            // 
+            this.colSession.HeaderText = "Session";
+            this.colSession.Name = "colSession";
+            // 
             // colValue
             // 
             this.colValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
@@ -175,6 +185,9 @@
             this.Controls.Add(this.menuStrip1);
             this.Name = "StripChart";
             this.Text = "Strip Chart";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.StripChart_KeyDown);
+            this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.StripChart_KeyPress);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.StripChart_KeyUp);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
@@ -200,6 +213,8 @@
         private System.Windows.Forms.DataGridViewCheckBoxColumn colShow;
         private System.Windows.Forms.DataGridViewTextBoxColumn colColor;
         private System.Windows.Forms.DataGridViewTextBoxColumn colChannel;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colSession;
         private System.Windows.Forms.DataGridViewTextBoxColumn colValue;
+        private System.Windows.Forms.ColorDialog colorDialog1;
     }
 }
