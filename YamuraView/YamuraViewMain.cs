@@ -57,21 +57,21 @@ namespace YamuraView
             YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].BringToFront();
             YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].Show();
         }
+        private void addDataGridMenuItem_Click(object sender, EventArgs e)
+        {
+            YamuraViewAppContext.appForms.Add(new DataGrid());
+            YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].Closed += new EventHandler(OnFormClosed);
+            YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].MdiParent = this;
+            YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].BringToFront();
+            YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].Show();
+        }
         private void OnFormClosed(object sender, EventArgs e)
         {
-            // When a form is closed, decrement the count of open forms.
-
-            // When the count gets to 0, exit the app by calling
-            // ExitThread().
-            RectangleConverter rectConv = new RectangleConverter();
+            // save form size/location in frame?
+            //RectangleConverter rectConv = new RectangleConverter();
             //string formpos = rectConv.ConvertToString(YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.IndexOf(sender as Form)]._formPosition);
-
             //appFormPositions[appForms.IndexOf(sender as SizedForm)] = formpos;
             YamuraViewAppContext.appForms.Remove(sender as Form);
-            //if (MyApplicationContext.appForms.Count == 0)
-            //{
-            //    ExitThread();
-            //}
         }
     }
 }

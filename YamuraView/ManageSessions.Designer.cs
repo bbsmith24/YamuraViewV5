@@ -64,9 +64,9 @@
             this.colChannels,
             this.colSource});
             this.dataGridSessions.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridSessions.Location = new System.Drawing.Point(0, 24);
+            this.dataGridSessions.Location = new System.Drawing.Point(0, 0);
             this.dataGridSessions.Name = "dataGridSessions";
-            this.dataGridSessions.Size = new System.Drawing.Size(800, 426);
+            this.dataGridSessions.Size = new System.Drawing.Size(800, 450);
             this.dataGridSessions.TabIndex = 2;
             // 
             // colSession
@@ -152,14 +152,14 @@
             // addSessions
             // 
             this.addSessions.Name = "addSessions";
-            this.addSessions.Size = new System.Drawing.Size(180, 22);
+            this.addSessions.Size = new System.Drawing.Size(172, 22);
             this.addSessions.Text = "Add Session(s)";
             this.addSessions.Click += new System.EventHandler(this.addSessionMenuItem_Click);
             // 
             // removeSessions
             // 
             this.removeSessions.Name = "removeSessions";
-            this.removeSessions.Size = new System.Drawing.Size(180, 22);
+            this.removeSessions.Size = new System.Drawing.Size(172, 22);
             this.removeSessions.Text = "Remove Session(s)";
             this.removeSessions.Click += new System.EventHandler(this.removeSessionsMenuItem_Click);
             // 

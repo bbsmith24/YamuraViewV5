@@ -48,12 +48,18 @@
   <ItemGroup>
     <Compile Include="ChannelDisplayInfo.cs" />
     <Compile Include="ChartView.cs" />
-    <Compile Include="LoggedData.cs" />
-    <Compile Include="ManageRuns.cs">
+    <Compile Include="DataGrid.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ManageRuns.Designer.cs">
-      <DependentUpon>ManageRuns.cs</DependentUpon>
+    <Compile Include="DataGrid.Designer.cs">
+      <DependentUpon>DataGrid.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LoggedData.cs" />
+    <Compile Include="ManageSessions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ManageSessions.Designer.cs">
+      <DependentUpon>ManageSessions.cs</DependentUpon>
     </Compile>
     <Compile Include="SelectChannels.cs">
       <SubType>Form</SubType>
@@ -90,8 +96,11 @@
     <EmbeddedResource Include="ChartView.resx">
       <DependentUpon>ChartView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ManageRuns.resx">
-      <DependentUpon>ManageRuns.cs</DependentUpon>
+    <EmbeddedResource Include="DataGrid.resx">
+      <DependentUpon>DataGrid.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ManageSessions.resx">
+      <DependentUpon>ManageSessions.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SelectChannels.resx">
       <DependentUpon>SelectChannels.cs</DependentUpon>

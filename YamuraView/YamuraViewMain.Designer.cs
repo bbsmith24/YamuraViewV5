@@ -34,6 +34,7 @@
             this.addStripChartMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addTractionCircleMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addTrackMapMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.addDataGridMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -53,7 +54,8 @@
             this.sessionsToolStripMenuItem,
             this.addStripChartMenuItem,
             this.addTractionCircleMenuItem,
-            this.addTrackMapMenuItem});
+            this.addTrackMapMenuItem,
+            this.addDataGridMenuItem});
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(49, 20);
             this.toolStripMenuItem1.Text = "Views";
@@ -61,30 +63,37 @@
             // sessionsToolStripMenuItem
             // 
             this.sessionsToolStripMenuItem.Name = "sessionsToolStripMenuItem";
-            this.sessionsToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.sessionsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.sessionsToolStripMenuItem.Text = "Manage Sessions";
             this.sessionsToolStripMenuItem.Click += new System.EventHandler(this.addSessionsMenuItem_Click);
             // 
             // addStripChartMenuItem
             // 
             this.addStripChartMenuItem.Name = "addStripChartMenuItem";
-            this.addStripChartMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.addStripChartMenuItem.Size = new System.Drawing.Size(180, 22);
             this.addStripChartMenuItem.Text = "Add Strip Chart";
             this.addStripChartMenuItem.Click += new System.EventHandler(this.addStripChartMenuItem_Click);
             // 
             // addTractionCircleMenuItem
             // 
             this.addTractionCircleMenuItem.Name = "addTractionCircleMenuItem";
-            this.addTractionCircleMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.addTractionCircleMenuItem.Size = new System.Drawing.Size(180, 22);
             this.addTractionCircleMenuItem.Text = "Add Traction Circle";
             this.addTractionCircleMenuItem.Click += new System.EventHandler(this.addTractionCircleMenuItem_Click);
             // 
             // addTrackMapMenuItem
             // 
             this.addTrackMapMenuItem.Name = "addTrackMapMenuItem";
-            this.addTrackMapMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.addTrackMapMenuItem.Size = new System.Drawing.Size(180, 22);
             this.addTrackMapMenuItem.Text = "Add Track Map";
             this.addTrackMapMenuItem.Click += new System.EventHandler(this.addTrackMapMenuItem_Click);
+            // 
+            // addDataGridMenuItem
+            // 
+            this.addDataGridMenuItem.Name = "addDataGridMenuItem";
+            this.addDataGridMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.addDataGridMenuItem.Text = "Add Data Grid";
+            this.addDataGridMenuItem.Click += new System.EventHandler(this.addDataGridMenuItem_Click);
             // 
             // YamuraViewMain
             // 
@@ -110,6 +119,7 @@
         private System.Windows.Forms.ToolStripMenuItem addTractionCircleMenuItem;
         private System.Windows.Forms.ToolStripMenuItem addTrackMapMenuItem;
         private System.Windows.Forms.ToolStripMenuItem sessionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem addDataGridMenuItem;
     }
 }
 
