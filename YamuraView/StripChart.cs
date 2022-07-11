@@ -128,8 +128,8 @@ namespace YamuraView
                 System.Diagnostics.Debug.WriteLine("X axis " + channel.axisChannel.DataRange[0] + " to " + channel.axisChannel.DataRange[1]);
                 System.Diagnostics.Debug.WriteLine("Y axis " + channel.dataChannel.DataRange[0] + " to " + channel.dataChannel.DataRange[1]);
 
-                xAxisRange[0] = xAxisRange[0] < channel.axisChannel.DataRange[0] ? xAxisRange[0] : channel.axisChannel.DataRange[0];
-                xAxisRange[1] = channel.axisChannel.DataRange[1] < xAxisRange[1] ? xAxisRange[1] : channel.axisChannel.DataRange[1];
+                xAxisRange[0] = xAxisRange[0] < channel.axisChannel.DataRange[0] + channel.AxisOffsetX[0] ? xAxisRange[0] : channel.axisChannel.DataRange[0] + channel.AxisOffsetX[0];
+                xAxisRange[1] = xAxisRange[1] > channel.axisChannel.DataRange[1] + channel.AxisOffsetX[0] ? xAxisRange[1] : channel.axisChannel.DataRange[1] + channel.AxisOffsetX[0];
 
                 if (yAxesRanges.ContainsKey(channel.dataChannel.ChannelName))
                 {
@@ -141,6 +141,8 @@ namespace YamuraView
                     yAxesRanges.Add(channel.dataChannel.ChannelName, new float[2] { channel.dataChannel.DataRange[0], channel.dataChannel.DataRange[1] });
                 }
             }
+
+            //xAxisRange[0] = 0.0F;
             System.Diagnostics.Debug.WriteLine("Overall");
             System.Diagnostics.Debug.WriteLine("X axis " + xAxisRange[0] + " to " + xAxisRange[1]);
             foreach (KeyValuePair<string, float[]> yAxis in yAxesRanges)
@@ -174,19 +176,27 @@ namespace YamuraView
                     //displayScale[0] = (float)clipRect.Width / (channel.axisChannel.DataRange[1] - channel.axisChannel.DataRange[0]);
                     //displayScale[1] = (float)clipRect.Height / (channel.dataChannel.DataRange[1] - channel.dataChannel.DataRange[0]);
                     displayScale[0] = (float)clipRect.Width / (xAxisRange[1] - xAxisRange[0]);
-                    displayScale[1] = (float)clipRect.Height / (yAxesRanges[channel.dataChannel.ChannelName][1] - yAxesRanges[channel.dataChannel.ChannelName][0]);
+                    float yRange = (yAxesRanges[channel.dataChannel.ChannelName][1] - yAxesRanges[channel.dataChannel.ChannelName][0]);
+                    displayScale[1] = (float)clipRect.Height / yRange;
                     displayScale[1] *= -1.0F;
                     // translate to lower left corner of display area
                     //chartGraphics.TranslateTransform(chartBorder, (float)clipRect.Height/* + chartBorder*/);
                     // scale to display range in X and Y
                     chartGraphics.ScaleTransform(displayScale[0], displayScale[1]);
-                    // translate by -1 * minimum display range + axis offset (scrolling)
-                    chartGraphics.TranslateTransform(0.0F + channel.AxisOffsetX[0],
-                        //, //-1 * axisChannel.dataChannel.DataRange[0],
-                    //                                    //+ ChartOwner.ChartAxes[xChannelName].AssociatedChannels[curChanInfo.SessionIndex.ToString() + "-" + xChannelName].AxisOffset[0],  // offset X
-                                                        -1 * (yAxesRanges[channel.dataChannel.ChannelName][1] - yAxesRanges[channel.dataChannel.ChannelName][0]));// channel.dataChannel.DataRange[1]);// yAxis.Value.AxisDisplayRange[0]);
-                    //                                    //+ ChartOwner.ChartAxes[xChannelName].AssociatedChannels[curChanInfo.SessionIndex.ToString() + "-" + xChannelName].AxisOffset[1]);  // offset Y
-//                                                                                                                                                                                            // set pen width to 0 (1 pixel regardless of scaling)
+                    // this works, inverted in Y and no traslation
+                    //chartGraphics.TranslateTransform(-1.0F * xAxisRange[0],
+                    //                                 -1.0F * yAxesRanges[channel.dataChannel.ChannelName][0]);
+
+                    // from prior version
+                    //chartGraphics.TranslateTransform(-1 * ChartOwner.ChartAxes[xChannelName].AxisDisplayRange[0] +
+                    //                                 ChartOwner.ChartAxes[xChannelName].AssociatedChannels[curChanInfo.Value.RunIndex.ToString() + "-" + xChannelName].AxisOffset[0],  // offset X
+                    //                                 -1 * yAxis.Value.AxisDisplayRange[0] +
+                    //                                 ChartOwner.ChartAxes[xChannelName].AssociatedChannels[curChanInfo.Value.RunIndex.ToString() + "-" + xChannelName].AxisOffset[1]);  // offset Y
+                    chartGraphics.TranslateTransform(-1 * xAxisRange[0] + channel.AxisOffsetX[0],
+                                                     -1 * yAxesRanges[channel.dataChannel.ChannelName][1] + channel.AxisOffsetY[0]);
+                    
+
+
                     pathPen.Width = 0;
                     // draw the path
                     chartGraphics.DrawPath(pathPen, channel.ChannelPath);

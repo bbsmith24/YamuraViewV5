@@ -398,6 +398,286 @@ namespace YamuraView
         /// <param name="fileName"></param>
         private void ReadYL5File(String fileName)
         {
+            int logSessionsIdx = 0;
+            char[] b = new char[3];
+            //float timestampSeconds = 0;
+            uint absTimeInt = 0;
+            float absTime = 0.0F;
+            float gpsDist = 0.0F;
+            float priorLatVal = 0.0F;
+            float priorLongVal = 0.0F;
+            bool gpsDistanceValid = false;
+            StringBuilder errStr = new StringBuilder();
+            YamuraViewMain.dataLogger.sessionData.Add(new SessionData());
+
+            logSessionsIdx = YamuraViewMain.dataLogger.sessionData.Count - 1;
+            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Time", "Timestamp", "Internal", 1.0F);
+            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].fileName = System.IO.Path.GetFullPath(fileName);
+
+
+            Cursor = Cursors.WaitCursor;
+            using (BinaryReader inFile = new BinaryReader(File.Open(fileName, FileMode.Open)))
+            {
+                while (true)
+                {
+                    try
+                    {
+                        Byte recordType = inFile.ReadByte();
+                        // HUB node (0x10)
+                        // no logged messages
+                        // Control node (0x20)
+                        // no logged messages
+                        // AD node (0x30-0x3F)
+                        if ((recordType >= 0x30) && (recordType <= 0x3F))
+                        {
+                            absTimeInt = inFile.ReadUInt32();
+                            absTime = (float)absTimeInt / 1000.0F;
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint((float)absTime, (float)absTime);
+
+                            Byte digitalVals = inFile.ReadByte();
+                            UInt16[] a2d = new UInt16[8];
+                            String channelName;
+                            #region read the digital data
+                            for (int idx = 0; idx < 8; idx++)
+                            {
+                                channelName = "D_" + ((recordType - 0x30) + idx).ToString();
+                                if (YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey(channelName))
+                                {
+                                    YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel(channelName, "Digital channel " + channelName, "D", 1.0F);
+                                }
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels[channelName].AddPoint((float)absTime, (float)((digitalVals >> idx) & 0x01));
+                            }
+                            #endregion
+                            #region read the a2d data
+                            for (int idx = 0; idx < 8; idx++)
+                            {
+                                a2d[idx] = inFile.ReadUInt16();
+                                channelName = "A2D_" + ((recordType - 0x30) + idx).ToString();
+                                if (YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey(channelName))
+                                {
+                                    YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel(channelName, "Analog to Digital channel " + channelName, "A2D", 1.0F);
+                                }
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels[channelName].AddPoint((float)absTime, (float)a2d[idx]);
+                            }
+                            #endregion
+                        }
+                        // IMU/accelerometer node (0x40)
+                        else if (recordType == 0x40)
+                        {
+                            absTimeInt = inFile.ReadUInt32();
+                            absTime = (float)absTimeInt / 1000.0F;
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint((float)absTime, (float)absTime);
+
+                            Int16 ax = inFile.ReadInt16();
+                            Int16 ay = inFile.ReadInt16();
+                            Int16 az = inFile.ReadInt16();
+                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("gX"))
+                            {
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("gX", "Accelerometer channel " + "gX", "G", 1.0F);
+                            }
+                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("gY"))
+                            {
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("gY", "Accelerometer channel " + "gY", "G", 1.0F);
+                            }
+                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("gZ"))
+                            {
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("gZ", "Accelerometer channel " + "gZ", "G", 1.0F);
+                            }
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["gX"].AddPoint(absTime, ax);
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["gY"].AddPoint(absTime, ay);
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["gZ"].AddPoint(absTime, az);
+                        }
+                        // GPS node (0x50)
+                        else if (recordType == 0x50)
+                        {
+                            absTimeInt = inFile.ReadUInt32();
+                            absTime = (float)absTimeInt / 1000.0F;
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint((float)absTime, (float)absTime);
+
+                            UInt16 gpsTimeYear = inFile.ReadUInt16();
+                            Byte gpsTimeMonth = inFile.ReadByte();
+                            Byte gpsTimeDay = inFile.ReadByte();
+                            Byte gpsTimeHour = inFile.ReadByte();
+                            Byte gpsTimeMinute = inFile.ReadByte();
+                            Byte gpsTimeSecond = inFile.ReadByte();
+                            float latitude = (float)inFile.ReadInt32() / 10000000.0F;
+                            float longitude = (float)inFile.ReadInt32() / 10000000.0F;
+                            float course = (float)inFile.ReadInt32();
+                            float speed = (float)inFile.ReadInt32();
+                            Byte SIV = inFile.ReadByte();
+                            if(gpsDistanceValid)
+                            {
+                                gpsDist += GPSDistance(priorLatVal, priorLongVal, latitude, longitude);
+                            }
+                            priorLatVal = latitude;
+                            priorLongVal = longitude;
+                            gpsDistanceValid = true;
+                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("Latitude"))
+                            {
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Latitude", "GPS Latitude", "GPS", 1.0F);
+                            }
+                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("Longitude"))
+                            {
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Longitude", "GPS Longitude", "GPS", 1.0F);
+                            }
+                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("Speed-GPS"))
+                            {
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Speed-GPS", "GPS Speed", "GPS", 1.0F);
+                            }
+                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("Heading-GPS"))
+                            {
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Heading-GPS", "GPS Heading", "GPS", 1.0F);
+                            }
+                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("Distance-GPS"))
+                            {
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Distance-GPS", "GPS Distance", "GPS", 1.0F);
+                            }
+                            // add data to channel
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Latitude"].AddPoint(absTime, latitude);
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Longitude"].AddPoint(absTime, longitude);
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Speed-GPS"].AddPoint(absTime, speed);
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Heading-GPS"].AddPoint(absTime, course);
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Distance-GPS"].AddPoint(absTime, gpsDist);
+                        }
+                        // IR Tire temp node (0x60-0x6F)
+                        else if ((recordType >= 0x60) && (recordType <= 0x6F))
+                        {
+                            absTimeInt = inFile.ReadUInt32();
+                            absTime = (float)absTimeInt / 1000.0F;
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint((float)absTime, (float)absTime);
+                            //deltaTime = absTime - lastSample[recordType - 0x30];
+                            //lastSample[recordType - 0x30] = absTime;
+                            //UInt16 seq = inFile.ReadUInt16();
+
+                            //float[] t = new float[8];
+                            //int row = 0;
+                            //int col = 0;
+                            //switch (seq)
+                            //{
+                            //    case 0:
+                            //        row = 0;
+                            //        col = 0;
+                            //        break;
+                            //    case 1:
+                            //        row = 0;
+                            //        col = 8;
+                            //        break;
+                            //    case 2:
+                            //        row = 1;
+                            //        col = 0;
+                            //        break;
+                            //    case 3:
+                            //        row = 1;
+                            //        col = 8;
+                            //        break;
+                            //    case 4:
+                            //        row = 2;
+                            //        col = 0;
+                            //        break;
+                            //    case 5:
+                            //        row = 2;
+                            //        col = 8;
+                            //        break;
+                            //    case 6:
+                            //        row = 3;
+                            //        col = 0;
+                            //        break;
+                            //    case 7:
+                            //        row = 3;
+                            //        col = 8;
+                            //        break;
+                            //}
+                            //for (int idx = 0; idx < 8; idx++)
+                            //{
+                            //    tempArray[row, col + idx] = inFile.ReadSingle();
+                            //}
+                            //if (seq == 7)
+                            //{
+                            //    deltaTime = absTime - lastSample[3];
+                            //    lastSample[3] = absTime;
+                            //    outStr.AppendFormat("0x{0:X02}\tIR\t{1}\t{2}", recordType,
+                            //                                                    absTime,
+                            //                                                    deltaTime);
+                            //    for (row = 0; row < 4; row++)
+                            //    {
+                            //        for (col = 0; col < 16; col++)
+                            //        {
+                            //            outStr.AppendFormat("\t{0:F2}", tempArray[row, col]);
+                            //        }
+
+                            //    }
+                            //    outStr.Append(System.Environment.NewLine);
+                            //}
+                        }
+                        // Shock travel (0x70-0x7F)
+                        else if ((recordType >= 0x70) && (recordType <= 0x7F))
+                        {
+                            absTimeInt = inFile.ReadUInt32();
+                            absTime = (float)absTimeInt / 1000.0F;
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint(absTime, absTime);
+                            //UInt32 speedVal = inFile.ReadUInt32();
+                            //deltaTime = absTime - lastSample[recordType - 0x30];
+                            //lastSample[recordType - 0x30] = absTime;
+                            //// not implemented on hardware
+                        }
+                        // Wheel Speed node (4 groups - 0x80-0x83; 0x84-0x87; 0x88-0x8B; 0x8C-0x8F)
+                        else if ((recordType >= 0x80) && (recordType <= 0x8F))
+                        {
+                            absTimeInt = inFile.ReadUInt32();
+                            absTime = (float)absTimeInt / 1000.0F;
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint(absTime, absTime);
+                            //UInt32 speedVal = inFile.ReadUInt32();
+                            //deltaTime = absTime - lastSample[recordType - 0x30];
+                            //lastSample[recordType - 0x30] = absTime;
+                            //outStr.AppendFormat("0x{0:X02}\tWheelSpeed\t{1}\t{2}\t{3}{4}", recordType,
+                            //                                                                absTime,
+                            //                                                                deltaTime,
+                            //                                                                speedVal,
+                            //                                                                System.Environment.NewLine);
+                        }
+                        // Engine RPM (0x90)
+                        else if (recordType == 0x90)
+                        {
+                            absTimeInt = inFile.ReadUInt32();
+                            absTime = (float)absTimeInt / 1000.0F;
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint(absTime, absTime);
+                            //UInt32 speedVal = inFile.ReadUInt32();
+                            //deltaTime = absTime - lastSample[recordType - 0x30];
+                            //lastSample[recordType - 0x30] = absTime;
+                            //// not implemented on hardware
+                        }
+                        // CAN interface (0xA0)
+                        else if (recordType == 0xA0)
+                        {
+                            absTimeInt = inFile.ReadUInt32();
+                            absTime = (float)absTimeInt / 1000.0F;
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint(absTime, absTime);
+                            //UInt32 speedVal = inFile.ReadUInt32();
+                            //deltaTime = absTime - lastSample[recordType - 0x30];
+                            //lastSample[recordType - 0x30] = absTime;
+                            //// not implemented on hardware
+                        }
+                        // unknown message
+                        else
+                        {
+                            //outStr.AppendFormat("Unknown record type 0x{0:X02}{1}", (byte)recordType, System.Environment.NewLine);
+                        }
+                    }
+                    catch
+                    {
+                        break;
+                    }
+                }
+            }
+            Cursor = Cursors.Default;
+
+            //if (errStr.Length > 0)
+            //{
+            //    FileInfo errInfo = new FileInfo();
+            //    errInfo.FileInfoText = errStr.ToString();
+            //    errInfo.ShowDialog();
+            //}
+            UpdateData();
         }
         public void UpdateData()
         {
