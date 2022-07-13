@@ -28,16 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.dataGridValues = new System.Windows.Forms.DataGridView();
+            this.colTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.channelListView = new System.Windows.Forms.DataGridView();
+            this.colShow = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.colChannel = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.toolStripSelectSession = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSessionList = new System.Windows.Forms.ToolStripComboBox();
-            this.colTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colShow = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.colChannel = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -79,6 +79,13 @@
             this.dataGridValues.Size = new System.Drawing.Size(266, 450);
             this.dataGridValues.TabIndex = 0;
             // 
+            // colTime
+            // 
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            this.colTime.DefaultCellStyle = dataGridViewCellStyle4;
+            this.colTime.HeaderText = "Time";
+            this.colTime.Name = "colTime";
+            // 
             // channelListView
             // 
             this.channelListView.AllowUserToAddRows = false;
@@ -95,37 +102,7 @@
             this.channelListView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.channelListView.Size = new System.Drawing.Size(530, 450);
             this.channelListView.TabIndex = 1;
-            // 
-            // menuStrip1
-            // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripSelectSession,
-            this.toolStripSessionList});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(800, 27);
-            this.menuStrip1.TabIndex = 1;
-            this.menuStrip1.Text = "menuStrip1";
-            this.menuStrip1.Visible = false;
-            // 
-            // toolStripSelectSession
-            // 
-            this.toolStripSelectSession.Name = "toolStripSelectSession";
-            this.toolStripSelectSession.Size = new System.Drawing.Size(92, 23);
-            this.toolStripSelectSession.Text = "Select Session";
-            // 
-            // toolStripSessionList
-            // 
-            this.toolStripSessionList.Name = "toolStripSessionList";
-            this.toolStripSessionList.Size = new System.Drawing.Size(121, 23);
-            this.toolStripSessionList.SelectedIndexChanged += new System.EventHandler(this.toolStripSessionList_SelectedIndexChanged);
-            // 
-            // colTime
-            // 
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-            this.colTime.DefaultCellStyle = dataGridViewCellStyle3;
-            this.colTime.HeaderText = "Time";
-            this.colTime.Name = "colTime";
+            this.channelListView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.channelListView_CellContentClick);
             // 
             // colShow
             // 
@@ -141,6 +118,35 @@
             this.colChannel.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.colChannel.HeaderText = "Channel";
             this.colChannel.Name = "colChannel";
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripSelectSession});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(800, 24);
+            this.menuStrip1.TabIndex = 1;
+            this.menuStrip1.Text = "menuStrip1";
+            this.menuStrip1.Visible = false;
+            // 
+            // toolStripSelectSession
+            // 
+            this.toolStripSelectSession.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripSessionList});
+            this.toolStripSelectSession.Name = "toolStripSelectSession";
+            this.toolStripSelectSession.Size = new System.Drawing.Size(92, 20);
+            this.toolStripSelectSession.Text = "Select Session";
+            // 
+            // toolStripSessionList
+            // 
+            this.toolStripSessionList.Items.AddRange(new object[] {
+            "test1",
+            "test2",
+            "test3"});
+            this.toolStripSessionList.Name = "toolStripSessionList";
+            this.toolStripSessionList.Size = new System.Drawing.Size(121, 23);
+            this.toolStripSessionList.SelectedIndexChanged += new System.EventHandler(this.toolStripSessionList_SelectedIndexChanged);
             // 
             // DataGrid
             // 
@@ -172,10 +178,10 @@
         private System.Windows.Forms.DataGridView dataGridValues;
         private System.Windows.Forms.DataGridView channelListView;
         private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem toolStripSelectSession;
-        private System.Windows.Forms.ToolStripComboBox toolStripSessionList;
         private System.Windows.Forms.DataGridViewTextBoxColumn colTime;
         private System.Windows.Forms.DataGridViewCheckBoxColumn colShow;
         private System.Windows.Forms.DataGridViewTextBoxColumn colChannel;
+        private System.Windows.Forms.ToolStripMenuItem toolStripSelectSession;
+        private System.Windows.Forms.ToolStripComboBox toolStripSessionList;
     }
 }

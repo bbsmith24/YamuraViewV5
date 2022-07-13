@@ -51,11 +51,24 @@ namespace YamuraView
         }
         private void addSessionsMenuItem_Click(object sender, EventArgs e)
         {
-            YamuraViewAppContext.appForms.Add(new ManageSessions());
-            YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].Closed += new EventHandler(OnFormClosed);
-            YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].MdiParent = this;
-            YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].BringToFront();
-            YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].Show();
+            bool viewFound = false;
+            for(int viewIdx = 0; viewIdx < YamuraViewAppContext.appForms.Count; viewIdx++)
+            {
+                if (YamuraViewAppContext.appForms[viewIdx] is ManageSessions)
+                {
+                    viewFound = true;
+                    YamuraViewAppContext.appForms[viewIdx].BringToFront();
+                    break;
+                }
+            }
+            if (!viewFound)
+            {
+                YamuraViewAppContext.appForms.Add(new ManageSessions());
+                YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].Closed += new EventHandler(OnFormClosed);
+                YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].MdiParent = this;
+                YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].BringToFront();
+                YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].Show();
+            }
         }
         private void addDataGridMenuItem_Click(object sender, EventArgs e)
         {
