@@ -114,6 +114,7 @@ namespace YamuraView
             #endregion
             #region get max range for X and Y axes
             float[] xAxisRange = new float[2] { float.MaxValue, float.MinValue };
+            float[] yAxisRange = new float[2] { float.MaxValue, float.MinValue };
             Dictionary<string, float[]> yAxesRanges = new Dictionary<string, float[]>();
             //float[] yAxisRange = new float[2] { float.MaxValue, float.MinValue };
             foreach (ChannelDisplayInfo channel in channels)
@@ -147,6 +148,8 @@ namespace YamuraView
             System.Diagnostics.Debug.WriteLine("X axis " + xAxisRange[0] + " to " + xAxisRange[1]);
             foreach (KeyValuePair<string, float[]> yAxis in yAxesRanges)
             {
+                yAxisRange[0] = yAxisRange[0] < yAxis.Value[0] ? yAxisRange[0] : yAxis.Value[0];
+                yAxisRange[1] = yAxisRange[1] > yAxis.Value[1] ? yAxisRange[1] : yAxis.Value[1];
                 System.Diagnostics.Debug.WriteLine("Y axis " + yAxis.Key + yAxis.Value[0] + " to " + yAxis.Value[1]);
             }
             #endregion
@@ -176,7 +179,8 @@ namespace YamuraView
                     //displayScale[0] = (float)clipRect.Width / (channel.axisChannel.DataRange[1] - channel.axisChannel.DataRange[0]);
                     //displayScale[1] = (float)clipRect.Height / (channel.dataChannel.DataRange[1] - channel.dataChannel.DataRange[0]);
                     displayScale[0] = (float)clipRect.Width / (xAxisRange[1] - xAxisRange[0]);
-                    float yRange = (yAxesRanges[channel.dataChannel.ChannelName][1] - yAxesRanges[channel.dataChannel.ChannelName][0]);
+                    float yRange = yAxisRange[1] - yAxisRange[0];//(yAxesRanges[channel.dataChannel.ChannelName][1] - yAxesRanges[channel.dataChannel.ChannelName][0]);
+                    yRange *= 1.01F;
                     displayScale[1] = (float)clipRect.Height / yRange;
                     displayScale[1] *= -1.0F;
                     // translate to lower left corner of display area
@@ -193,7 +197,7 @@ namespace YamuraView
                     //                                 -1 * yAxis.Value.AxisDisplayRange[0] +
                     //                                 ChartOwner.ChartAxes[xChannelName].AssociatedChannels[curChanInfo.Value.RunIndex.ToString() + "-" + xChannelName].AxisOffset[1]);  // offset Y
                     chartGraphics.TranslateTransform(-1 * xAxisRange[0] + channel.AxisOffsetX[0],
-                                                     -1 * yAxesRanges[channel.dataChannel.ChannelName][1] + channel.AxisOffsetY[0]);
+                                                     -1 * (yAxesRanges[channel.dataChannel.ChannelName][1] + (yRange * 0.01F)));// channel.AxisOffsetY[0]);
                     
 
 
@@ -225,16 +229,21 @@ namespace YamuraView
                                                     YamuraViewMain.dataLogger.sessionData[selectChannels.selectedChannelSessions[channelIdx]].channels["Time"]));
                 channels[channels.Count - 1].ChannelColor = colors[(channels.Count - 1) % colors.Count];
                 channels[channels.Count - 1].ShowChannel = true;
-                if (channels[channels.Count - 1].SessionIdx == 0)
-                {
-                    channels[channels.Count - 1].AxisOffsetX[0] = 50.0F;
-                }
                 channelListView.Rows.Add();
-                channelListView.Rows[channelListView.Rows.Count - 1].Cells[0].Value = channels[channels.Count - 1].ShowChannel;
-                channelListView.Rows[channelListView.Rows.Count - 1].Cells[1].Style.BackColor = channels[channels.Count - 1].ChannelColor;
-                channelListView.Rows[channelListView.Rows.Count - 1].Cells[2].Value = channels[channels.Count - 1].dataChannel.ChannelName;
-                channelListView.Rows[channelListView.Rows.Count - 1].Cells[3].Value = channels[channels.Count - 1].SessionIdx.ToString();
-                channelListView.Rows[channelListView.Rows.Count - 1].Cells[4].Value = (channels[channels.Count - 1].dataChannel.dataPoints.ElementAt(0).Value as DataPoint).PointValue.ToString();
+                
+                String shortName = YamuraViewMain.dataLogger.sessionData[channels[channels.Count - 1].SessionIdx].fileName;
+                int lastSlash = shortName.LastIndexOf('\\');
+                if (lastSlash >= 0)
+                {
+                    shortName = shortName.Substring(lastSlash + 1);
+                }
+
+                channelListView.Rows[channelListView.Rows.Count - 1].Cells["colShow"].Value = channels[channels.Count - 1].ShowChannel;
+                channelListView.Rows[channelListView.Rows.Count - 1].Cells["colColor"].Style.BackColor = channels[channels.Count - 1].ChannelColor;
+                channelListView.Rows[channelListView.Rows.Count - 1].Cells["colCHannel"].Value = channels[channels.Count - 1].dataChannel.ChannelName;
+                channelListView.Rows[channelListView.Rows.Count - 1].Cells["colSession"].Value = channels[channels.Count - 1].SessionIdx.ToString();
+                channelListView.Rows[channelListView.Rows.Count - 1].Cells["colFileName"].Value = shortName;
+                channelListView.Rows[channelListView.Rows.Count - 1].Cells["colValue"].Value = (channels[channels.Count - 1].dataChannel.dataPoints.ElementAt(0).Value as DataPoint).PointValue.ToString();
 
             }
             chartPanel.Invalidate();

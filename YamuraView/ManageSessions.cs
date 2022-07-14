@@ -403,6 +403,7 @@ namespace YamuraView
             //float timestampSeconds = 0;
             uint absTimeInt = 0;
             float absTime = 0.0F;
+            float offsetTime = -1.0F;
             float gpsDist = 0.0F;
             float priorLatVal = 0.0F;
             float priorLongVal = 0.0F;
@@ -432,6 +433,8 @@ namespace YamuraView
                         {
                             absTimeInt = inFile.ReadUInt32();
                             absTime = (float)absTimeInt / 1000.0F;
+                            offsetTime = offsetTime < 0.0F ? absTime : offsetTime;
+                            absTime -= offsetTime;
                             YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint((float)absTime, (float)absTime);
 
                             Byte digitalVals = inFile.ReadByte();
@@ -466,6 +469,8 @@ namespace YamuraView
                         {
                             absTimeInt = inFile.ReadUInt32();
                             absTime = (float)absTimeInt / 1000.0F;
+                            offsetTime = offsetTime < 0.0F ? absTime : offsetTime;
+                            absTime -= offsetTime;
                             YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint((float)absTime, (float)absTime);
 
                             Int16 ax = inFile.ReadInt16();
@@ -492,6 +497,8 @@ namespace YamuraView
                         {
                             absTimeInt = inFile.ReadUInt32();
                             absTime = (float)absTimeInt / 1000.0F;
+                            offsetTime = offsetTime < 0.0F ? absTime : offsetTime;
+                            absTime -= offsetTime;
                             YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint((float)absTime, (float)absTime);
 
                             UInt16 gpsTimeYear = inFile.ReadUInt16();
@@ -544,6 +551,8 @@ namespace YamuraView
                         {
                             absTimeInt = inFile.ReadUInt32();
                             absTime = (float)absTimeInt / 1000.0F;
+                            offsetTime = offsetTime < 0.0F ? absTime : offsetTime;
+                            absTime -= offsetTime;
                             YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint((float)absTime, (float)absTime);
                             //deltaTime = absTime - lastSample[recordType - 0x30];
                             //lastSample[recordType - 0x30] = absTime;
@@ -614,6 +623,8 @@ namespace YamuraView
                         {
                             absTimeInt = inFile.ReadUInt32();
                             absTime = (float)absTimeInt / 1000.0F;
+                            offsetTime = offsetTime < 0.0F ? absTime : offsetTime;
+                            absTime -= offsetTime;
                             YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint(absTime, absTime);
                             //UInt32 speedVal = inFile.ReadUInt32();
                             //deltaTime = absTime - lastSample[recordType - 0x30];
@@ -625,6 +636,8 @@ namespace YamuraView
                         {
                             absTimeInt = inFile.ReadUInt32();
                             absTime = (float)absTimeInt / 1000.0F;
+                            offsetTime = offsetTime < 0.0F ? absTime : offsetTime;
+                            absTime -= offsetTime;
                             YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint(absTime, absTime);
                             //UInt32 speedVal = inFile.ReadUInt32();
                             //deltaTime = absTime - lastSample[recordType - 0x30];
@@ -640,6 +653,8 @@ namespace YamuraView
                         {
                             absTimeInt = inFile.ReadUInt32();
                             absTime = (float)absTimeInt / 1000.0F;
+                            offsetTime = offsetTime < 0.0F ? absTime : offsetTime;
+                            absTime -= offsetTime;
                             YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint(absTime, absTime);
                             //UInt32 speedVal = inFile.ReadUInt32();
                             //deltaTime = absTime - lastSample[recordType - 0x30];
@@ -651,6 +666,8 @@ namespace YamuraView
                         {
                             absTimeInt = inFile.ReadUInt32();
                             absTime = (float)absTimeInt / 1000.0F;
+                            offsetTime = offsetTime < 0.0F ? absTime : offsetTime;
+                            absTime -= offsetTime;
                             YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint(absTime, absTime);
                             //UInt32 speedVal = inFile.ReadUInt32();
                             //deltaTime = absTime - lastSample[recordType - 0x30];

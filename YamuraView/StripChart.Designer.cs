@@ -36,12 +36,13 @@
             this.xAxisToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.channelListView = new System.Windows.Forms.DataGridView();
+            this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.colShow = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colColor = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colChannel = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colSession = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -135,6 +136,7 @@
             this.colColor,
             this.colChannel,
             this.colSession,
+            this.colFileName,
             this.colValue});
             this.channelListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.channelListView.Location = new System.Drawing.Point(0, 0);
@@ -174,6 +176,11 @@
             this.colSession.HeaderText = "Session";
             this.colSession.Name = "colSession";
             // 
+            // colFileName
+            // 
+            this.colFileName.HeaderText = "File";
+            this.colFileName.Name = "colFileName";
+            // 
             // colValue
             // 
             this.colValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
@@ -212,11 +219,12 @@
         private System.Windows.Forms.ToolStripMenuItem xAxisToolStripMenuItem;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.DataGridView channelListView;
+        private System.Windows.Forms.ColorDialog colorDialog1;
         private System.Windows.Forms.DataGridViewCheckBoxColumn colShow;
         private System.Windows.Forms.DataGridViewTextBoxColumn colColor;
         private System.Windows.Forms.DataGridViewTextBoxColumn colChannel;
         private System.Windows.Forms.DataGridViewTextBoxColumn colSession;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colFileName;
         private System.Windows.Forms.DataGridViewTextBoxColumn colValue;
-        private System.Windows.Forms.ColorDialog colorDialog1;
     }
 }
