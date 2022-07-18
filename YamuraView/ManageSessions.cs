@@ -410,8 +410,8 @@ namespace YamuraView
             bool gpsDistanceValid = false;
             StringBuilder errStr = new StringBuilder();
             YamuraViewMain.dataLogger.sessionData.Add(new SessionData());
-
             logSessionsIdx = YamuraViewMain.dataLogger.sessionData.Count - 1;
+            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].sessionColor = YamuraViewMain.colors[logSessionsIdx % YamuraViewMain.colors.Count];
             YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Time", "Timestamp", "Internal", 1.0F);
             YamuraViewMain.dataLogger.sessionData[logSessionsIdx].fileName = System.IO.Path.GetFullPath(fileName);
 
@@ -444,7 +444,7 @@ namespace YamuraView
                             for (int idx = 0; idx < 8; idx++)
                             {
                                 channelName = "D_" + ((recordType - 0x30) + idx).ToString();
-                                if (YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey(channelName))
+                                if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey(channelName))
                                 {
                                     YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel(channelName, "Digital channel " + channelName, "D", 1.0F);
                                 }
@@ -456,7 +456,7 @@ namespace YamuraView
                             {
                                 a2d[idx] = inFile.ReadUInt16();
                                 channelName = "A2D_" + ((recordType - 0x30) + idx).ToString();
-                                if (YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey(channelName))
+                                if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey(channelName))
                                 {
                                     YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel(channelName, "Analog to Digital channel " + channelName, "A2D", 1.0F);
                                 }

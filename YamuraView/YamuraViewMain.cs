@@ -15,6 +15,7 @@ namespace YamuraView
     {
         // DataLogger contains session(s), which contain channel(s) which contain data point(s)
         public static DataLogger dataLogger = new DataLogger();
+        public static List<Color> colors = new List<Color>();
 
         public YamuraViewMain()
         {
@@ -24,6 +25,25 @@ namespace YamuraView
             YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].MdiParent = this;
             YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].BringToFront();
             YamuraViewAppContext.appForms[YamuraViewAppContext.appForms.Count - 1].Show();
+            colors.Add(Color.Red);
+            colors.Add(Color.Green);
+            colors.Add(Color.Blue);
+            colors.Add(Color.Yellow);
+            colors.Add(Color.Orange);
+            colors.Add(Color.Cyan);
+            colors.Add(Color.Magenta);
+            colors.Add(Color.LightGreen);
+            colors.Add(Color.LightBlue);
+            colors.Add(Color.LightYellow);
+            colors.Add(Color.LightCyan);
+            colors.Add(Color.DarkRed);
+            colors.Add(Color.DarkGreen);
+            colors.Add(Color.DarkBlue);
+            colors.Add(Color.DarkOrange);
+            colors.Add(Color.DarkCyan);
+            colors.Add(Color.Gray);
+            colors.Add(Color.LightGray);
+            colors.Add(Color.DarkGray);
         }
         private void addStripChartMenuItem_Click(object sender, EventArgs e)
         {

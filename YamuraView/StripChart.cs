@@ -16,7 +16,6 @@ namespace YamuraView
         bool dragStart = false;
         int dragSession = 0;
         int mouseLast = 0;
-        List<Color> colors = new List<Color>();
 
         List<ChannelDisplayInfo> channels = new List<ChannelDisplayInfo>();
         public StripChart()
@@ -24,25 +23,6 @@ namespace YamuraView
             InitializeComponent();
             this.Text = "Strip Chart";
             chartPanel.BringToFront();
-            colors.Add(Color.Red);
-            colors.Add(Color.Green);
-            colors.Add(Color.Blue);
-            colors.Add(Color.Yellow);
-            colors.Add(Color.Orange);
-            colors.Add(Color.Cyan);
-            colors.Add(Color.Magenta);
-            colors.Add(Color.LightGreen);
-            colors.Add(Color.LightBlue);
-            colors.Add(Color.LightYellow);
-            colors.Add(Color.LightCyan);
-            colors.Add(Color.DarkRed);
-            colors.Add(Color.DarkGreen);
-            colors.Add(Color.DarkBlue);
-            colors.Add(Color.DarkOrange);
-            colors.Add(Color.DarkCyan);
-            colors.Add(Color.Gray);
-            colors.Add(Color.LightGray);
-            colors.Add(Color.DarkGray);
         }
         private void chartPanel_Paint(object sender, PaintEventArgs e)
         {
@@ -227,7 +207,7 @@ namespace YamuraView
                 channels.Add(new ChannelDisplayInfo(selectChannels.selectedChannelSessions[channelIdx],
                                                     YamuraViewMain.dataLogger.sessionData[selectChannels.selectedChannelSessions[channelIdx]].channels[selectChannels.selectedChannelNames[channelIdx]],
                                                     YamuraViewMain.dataLogger.sessionData[selectChannels.selectedChannelSessions[channelIdx]].channels["Time"]));
-                channels[channels.Count - 1].ChannelColor = colors[(channels.Count - 1) % colors.Count];
+                channels[channels.Count - 1].ChannelColor = YamuraViewMain.colors[(channels.Count - 1) % YamuraViewMain.colors.Count];
                 channels[channels.Count - 1].ShowChannel = true;
                 channelListView.Rows.Add();
                 

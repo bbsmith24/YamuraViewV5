@@ -49,6 +49,7 @@ namespace YamuraView
         public String dateStr = "";
         public String timeStr = "";
         public String fileName = "";
+        public Color sessionColor = Color.Red;
         public float[] minMaxTimestamp = new float[] { float.MaxValue, float.MinValue };
         public void AddChannel(String name, String desc, String src, float scl)
         {

@@ -94,13 +94,17 @@ namespace YamuraView
             float[] yAxisRange = new float[2] { float.MaxValue, float.MinValue };
             Dictionary<string, float[]> yAxesRanges = new Dictionary<string, float[]>();
             //float[] yAxisRange = new float[2] { float.MaxValue, float.MinValue };
+            int sessionIdx = 0;
             foreach (ChannelDisplayInfo channel in channels)
             {
                 #region skip if channel is not displayed
-                if (!channel.ShowChannel)
+                //if (!channel.ShowChannel)
+                if((bool)dataGridView1.Rows[sessionIdx].Cells["colShowSession"].Value == false)
                 {
+                    sessionIdx++;
                     continue;
                 }
+                sessionIdx++;
                 #endregion
                 System.Diagnostics.Debug.WriteLine(channel.dataChannel.ChannelName + " (" + channel.SessionIdx + ")");
                 System.Diagnostics.Debug.WriteLine("X axis " + channel.axisChannel.DataRange[0] + " to " + channel.axisChannel.DataRange[1]);
@@ -137,16 +141,18 @@ namespace YamuraView
             // x and y scale
             float[] displayScale = new float[] { 1.0F, 1.0F };
             // process all channels
+            sessionIdx = 0;
             foreach (ChannelDisplayInfo channel in channels)
             {
                 #region skip if channel is not displayed
-                if (!channel.ShowChannel)
+                if ((bool)dataGridView1.Rows[sessionIdx].Cells["colShowSession"].Value == false)
                 {
+                    sessionIdx++;
                     continue;
                 }
                 #endregion
                 #region draw to transformed graphic context
-                pathPen = new Pen(channel.ChannelColor == null ? Color.Red : channel.ChannelColor);
+                pathPen = new Pen(YamuraViewMain.dataLogger.sessionData[sessionIdx].sessionColor == null ? Color.Red : YamuraViewMain.dataLogger.sessionData[sessionIdx].sessionColor);
                 using (Graphics chartGraphics = chartPanel.CreateGraphics())
                 {
                     Rectangle clipRect = chartPanel.Bounds;
@@ -159,6 +165,15 @@ namespace YamuraView
                     float yRange = yAxisRange[1] - yAxisRange[0];//(yAxesRanges[channel.dataChannel.ChannelName][1] - yAxesRanges[channel.dataChannel.ChannelName][0]);
                     yRange *= 1.01F;
                     displayScale[1] = (float)clipRect.Height / yRange;
+                    if(displayScale[1] > displayScale[0])
+                    {
+                        displayScale[1] = displayScale[0];
+                    }
+                    else
+                    {
+                        displayScale[0] = displayScale[1];
+                    }
+
                     displayScale[1] *= -1.0F;
                     // translate to lower left corner of display area
                     //chartGraphics.TranslateTransform(chartBorder, (float)clipRect.Height/* + chartBorder*/);
@@ -184,14 +199,35 @@ namespace YamuraView
                     // reset to original orientation
                     chartGraphics.ResetTransform();
                 }
+                sessionIdx++;
                 #endregion
             }
             #endregion
         }
-
         private void chartPanel_SizeChanged(object sender, EventArgs e)
         {
             Invalidate();
+        }
+
+        private void TrackMap_Activated(object sender, EventArgs e)
+        {
+            dataGridView1.Rows.Clear();
+            channels.Clear();
+            for(int idx = 0; idx < YamuraViewMain.dataLogger.sessionData.Count; idx++)
+            {
+                if ((YamuraViewMain.dataLogger.sessionData[idx].channels.ContainsKey("Latitude")) &&
+                    (YamuraViewMain.dataLogger.sessionData[idx].channels.ContainsKey("Longitude")))
+                {
+                    dataGridView1.Rows.Add();
+                    dataGridView1.Rows[idx].Cells["colColor"].Style.BackColor = YamuraViewMain.dataLogger.sessionData[idx].sessionColor;
+                    dataGridView1.Rows[idx].Cells["colShowSession"].Value = true;
+                    dataGridView1.Rows[idx].Cells["colFile"].Value = YamuraViewMain.dataLogger.sessionData[idx].fileName;
+                    dataGridView1.Rows[idx].Cells["colSession"].Value = idx;
+                    channels.Add(new ChannelDisplayInfo(idx,
+                                                        YamuraViewMain.dataLogger.sessionData[idx].channels["Latitude"],
+                                                        YamuraViewMain.dataLogger.sessionData[idx].channels["Longitude"]));
+                }
+            }
         }
     }
 }
