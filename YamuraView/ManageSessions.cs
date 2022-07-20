@@ -408,6 +408,7 @@ namespace YamuraView
             float priorLatVal = 0.0F;
             float priorLongVal = 0.0F;
             bool gpsDistanceValid = false;
+            String channelName = "";
             StringBuilder errStr = new StringBuilder();
             YamuraViewMain.dataLogger.sessionData.Add(new SessionData());
             logSessionsIdx = YamuraViewMain.dataLogger.sessionData.Count - 1;
@@ -439,7 +440,6 @@ namespace YamuraView
 
                             Byte digitalVals = inFile.ReadByte();
                             UInt16[] a2d = new UInt16[8];
-                            String channelName;
                             #region read the digital data
                             for (int idx = 0; idx < 8; idx++)
                             {
@@ -510,7 +510,7 @@ namespace YamuraView
                             float latitude = (float)inFile.ReadInt32() / 10000000.0F;
                             float longitude = (float)inFile.ReadInt32() / 10000000.0F;
                             float course = (float)inFile.ReadInt32();
-                            float speed = (float)inFile.ReadInt32();
+                            float speed = (float)inFile.ReadInt32()/1000.0F;
                             Byte SIV = inFile.ReadByte();
                             if(gpsDistanceValid)
                             {
@@ -638,15 +638,21 @@ namespace YamuraView
                             absTime = (float)absTimeInt / 1000.0F;
                             offsetTime = offsetTime < 0.0F ? absTime : offsetTime;
                             absTime -= offsetTime;
+                            // conversion for 205/50R15 tires (874.18 revs/mile) with 4 magnets
+                            // 1029.534994/interval
+                            UInt32 speedVal = inFile.ReadUInt32();
+                            float speedValF = 1029.534994F / (float)speedVal;
+                            if(float.IsInfinity(speedValF))
+                            {
+                                continue;
+                            }
                             YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint(absTime, absTime);
-                            //UInt32 speedVal = inFile.ReadUInt32();
-                            //deltaTime = absTime - lastSample[recordType - 0x30];
-                            //lastSample[recordType - 0x30] = absTime;
-                            //outStr.AppendFormat("0x{0:X02}\tWheelSpeed\t{1}\t{2}\t{3}{4}", recordType,
-                            //                                                                absTime,
-                            //                                                                deltaTime,
-                            //                                                                speedVal,
-                            //                                                                System.Environment.NewLine);
+                            channelName = "SPD_" + (recordType - 0x80).ToString();
+                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey(channelName))
+                            {
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel(channelName, "Wheelspeed channel " + channelName, "SPD", 1.0F);
+                            }
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels[channelName].AddPoint((float)absTime, speedValF);
                         }
                         // Engine RPM (0x90)
                         else if (recordType == 0x90)
