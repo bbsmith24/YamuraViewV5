@@ -415,7 +415,10 @@ namespace YamuraView
             YamuraViewMain.dataLogger.sessionData[logSessionsIdx].sessionColor = YamuraViewMain.colors[logSessionsIdx % YamuraViewMain.colors.Count];
             YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Time", "Timestamp", "Internal", 1.0F);
             YamuraViewMain.dataLogger.sessionData[logSessionsIdx].fileName = System.IO.Path.GetFullPath(fileName);
-
+            //Dictionary<int, List<float>> wheelSpeeds = new Dictionary<int, List<float>> ();
+            //Dictionary<int, int> wheelSpeedIdx = new Dictionary<int, int>();
+            //Dictionary<int, int> wheelSpeedMagnets = new Dictionary<int, int>();
+            //float speedValF = 0.0F;
 
             Cursor = Cursors.WaitCursor;
             using (BinaryReader inFile = new BinaryReader(File.Open(fileName, FileMode.Open)))
@@ -512,39 +515,46 @@ namespace YamuraView
                             float course = (float)inFile.ReadInt32();
                             float speed = (float)inFile.ReadInt32()/1000.0F;
                             Byte SIV = inFile.ReadByte();
-                            if(gpsDistanceValid)
+                            if (SIV > 0)
                             {
-                                gpsDist += GPSDistance(priorLatVal, priorLongVal, latitude, longitude);
+                                if (gpsDistanceValid)
+                                {
+                                    gpsDist += GPSDistance(priorLatVal, priorLongVal, latitude, longitude);
+                                }
+                                priorLatVal = latitude;
+                                priorLongVal = longitude;
+                                gpsDistanceValid = true;
+                                if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("Latitude"))
+                                {
+                                    YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Latitude", "GPS Latitude", "GPS", 1.0F);
+                                }
+                                if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("Longitude"))
+                                {
+                                    YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Longitude", "GPS Longitude", "GPS", 1.0F);
+                                }
+                                if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("Speed-GPS"))
+                                {
+                                    YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Speed-GPS", "GPS Speed", "GPS", 1.0F);
+                                }
+                                if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("Heading-GPS"))
+                                {
+                                    YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Heading-GPS", "GPS Heading", "GPS", 1.0F);
+                                }
+                                if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("Distance-GPS"))
+                                {
+                                    YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Distance-GPS", "GPS Distance", "GPS", 1.0F);
+                                }
+                                // add data to channel
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Latitude"].AddPoint(absTime, latitude);
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Longitude"].AddPoint(absTime, longitude);
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Speed-GPS"].AddPoint(absTime, speed);
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Heading-GPS"].AddPoint(absTime, course);
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Distance-GPS"].AddPoint(absTime, gpsDist);
                             }
-                            priorLatVal = latitude;
-                            priorLongVal = longitude;
-                            gpsDistanceValid = true;
-                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("Latitude"))
+                            else
                             {
-                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Latitude", "GPS Latitude", "GPS", 1.0F);
+                                System.Diagnostics.Debug.WriteLine("no satellites...");
                             }
-                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("Longitude"))
-                            {
-                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Longitude", "GPS Longitude", "GPS", 1.0F);
-                            }
-                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("Speed-GPS"))
-                            {
-                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Speed-GPS", "GPS Speed", "GPS", 1.0F);
-                            }
-                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("Heading-GPS"))
-                            {
-                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Heading-GPS", "GPS Heading", "GPS", 1.0F);
-                            }
-                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("Distance-GPS"))
-                            {
-                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Distance-GPS", "GPS Distance", "GPS", 1.0F);
-                            }
-                            // add data to channel
-                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Latitude"].AddPoint(absTime, latitude);
-                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Longitude"].AddPoint(absTime, longitude);
-                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Speed-GPS"].AddPoint(absTime, speed);
-                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Heading-GPS"].AddPoint(absTime, course);
-                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Distance-GPS"].AddPoint(absTime, gpsDist);
                         }
                         // IR Tire temp node (0x60-0x6F)
                         else if ((recordType >= 0x60) && (recordType <= 0x6F))
@@ -640,19 +650,19 @@ namespace YamuraView
                             absTime -= offsetTime;
                             // conversion for 205/50R15 tires (874.18 revs/mile) with 4 magnets
                             // 1029.534994/interval
-                            UInt32 speedVal = inFile.ReadUInt32();
-                            float speedValF = 1029.534994F / (float)speedVal;
-                            if(float.IsInfinity(speedValF))
+                            float interval = (float)inFile.ReadUInt32();
+                            interval = (4118.139976F / 4.0F) / interval;
+                            if (!(float.IsInfinity(interval)) &&
+                                !(float.IsNaN(interval)))
                             {
-                                continue;
+                                channelName = "SPD_" + (recordType - 0x80).ToString();
+                                if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey(channelName))
+                                {
+                                    YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel(channelName, "Wheelspeed channel " + channelName, "SPD", 1.0F);
+                                }
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint(absTime, absTime);
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels[channelName].AddPoint(absTime, interval);
                             }
-                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint(absTime, absTime);
-                            channelName = "SPD_" + (recordType - 0x80).ToString();
-                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey(channelName))
-                            {
-                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel(channelName, "Wheelspeed channel " + channelName, "SPD", 1.0F);
-                            }
-                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels[channelName].AddPoint((float)absTime, speedValF);
                         }
                         // Engine RPM (0x90)
                         else if (recordType == 0x90)
