@@ -39,6 +39,10 @@ namespace YamuraView
                 {
                     ReadTXTFile(openLogFile.FileNames[fileIdx]);
                 }
+                else if (openLogFile.FileNames[fileIdx].EndsWith("csv", true, System.Globalization.CultureInfo.CurrentCulture))
+                {
+                    ReadTrackAddictCSV(openLogFile.FileNames[fileIdx]);
+                }
             }
         }
         #region read various log file formats
@@ -703,13 +707,157 @@ namespace YamuraView
                 }
             }
             Cursor = Cursors.Default;
+            UpdateData();
+        }
+        /// <summary>
+        /// comma separated file from TrackAddict
+        /// comments start with '#'
+        /// first line after comments are channel names "name","name"...
+        /// Time
+        /// UTC Time
+        /// Lap
+        /// Sector
+        /// GPS_Update - not a real channel; 1 for fresh GPS data
+        ///      GPS_Delay (?)
+        ///      Latitude
+        ///      Longitude
+        ///      Altitude (m)
+        ///      Altitude (ft)
+        ///      Speed (MPH)
+        ///      HeadingAccuracy (m)
+        /// Accel X
+        /// Accel Y
+        /// Accel Z
+        /// Brake (calculated)
+        /// Barometric Pressure (PSI)
+        /// Pressure Altitude (ft)
+        /// OBD_Update not a real channel; 1 for fresh OBD data
+        /// User configured OBDII channels to end
+        /// 
+        /// # RaceRender Data: TrackAddict 4.8.1 on iOS 15.5 [iPhone12,1] (Mode: 1)
+        /// # Vehicle Tune: OSID's: 11772201
+        /// # Start Point: 43.664356, -84.264966  @ -1.00 deg
+        /// # Split Point 1: 43.662552, -84.263961  @ -1.00 deg
+        /// # Split Point 2: 43.664290, -84.264205  @ -1.00 deg
+        /// # Split Point 3: 43.664362, -84.264215  @ -1.00 deg
+        /// # End Point: 43.666661, -84.265162  @ -1.00 deg
+        /// # GPS: XGPS160; Type: 1
+        /// # OBD Mode: BLE; ID: "PLXKiwi v2.0"
+        /// # OBD Settings: AP1;AF1;RPR0
+        /// # User Settings: U0;AS1;LT1/1;EC0;VC0;VQ3;VS0
+        /// # Device Free Space: 1268 MB
+        /// "Time","UTC Time","Lap","Sector","GPS_Update","GPS_Delay","Latitude","Longitude","Altitude (m)","Altitude (ft)","Speed (MPH)","Heading","Accuracy (m)","Accel X","Accel Y","Accel Z","Brake (calculated)","Barometric Pressure (PSI)","Pressure Altitude (ft)","OBD_Update","Throttle Position (%) *OBD","Mass Air Flow Rate (lbs/min) *OBD","Engine Speed (RPM) *OBD","Vehicle Speed (mph) *OBD"
+        /// 0.000,1657391963.000,0,0,1,0.007,43.6645074,-84.2652905,191.4,628,0.0,181.5,2.5,-0.00,0.00,0.02,1,14.510,352,1,10.588,0.241,784.250,0.000
+        /// # Sector comments embedded
+        /// # Lap comments embedded
+        /// # Session End at end of data (just treat as a comment....)
+        /// </summary>
+        /// <param name="fileName"></param>
+        private void ReadTrackAddictCSV(String fileName)
+        {
+            float offsetTime = -1.0F;
+            String strReadLine;
+            String[] splitStr;
+            String[] gpsNames = { "Latitude", "Longitude", "Speed (MPH)", "Heading" };
+            String[] accelNames = { "Accel X", "Accel Y", "Accel Z" };
+            List<string> channels = new List<string>();
+            List<float> values = new List<float>();
+            float absTime = 0.0F;
+            float priorLatVal = 0.0F;
+            float priorLongVal = 0.0F;
+            float latVal = 0.0F;
+            float longVal = 0.0F;
+            float gpsDist = 0.0F;
+            float gpsMPH = 0.0F;
+            float gpsHeading = 0.0F;
+            float gX = 0.0F;
+            float gY = 0.0F;
+            float gZ = 0.0F;
+            YamuraViewMain.dataLogger.sessionData.Add(new SessionData());
+            int logSessionsIdx = YamuraViewMain.dataLogger.sessionData.Count - 1;
+            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].sessionColor = YamuraViewMain.colors[logSessionsIdx % YamuraViewMain.colors.Count];
+            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Time", "Timestamp", "Internal", 1.0F);
+            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].fileName = System.IO.Path.GetFullPath(fileName);
+            Cursor = Cursors.WaitCursor;
+            using (StreamReader inFile = new StreamReader(File.Open(fileName, FileMode.Open)))
+            {
+                while (!inFile.EndOfStream)
+                {
+                    strReadLine = inFile.ReadLine();
+                    // comment - skip
+                    if((strReadLine.StartsWith("#")) || (strReadLine.Length == 0))
+                    {
+                        continue;
+                    }
+                    // channels, no channel names defined yet
+                    if ((strReadLine.StartsWith("\"")) && ((channels == null) || (channels.Count == 0)))
+                    {
+                        splitStr = strReadLine.Split(new char[] { '"', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        for(int idx = 0; idx < splitStr.Count(); idx++)
+                        {
+                            channels.Add(splitStr[idx]);
+                        }
+                        continue;
+                    }
+                    // channel data
+                    splitStr = strReadLine.Split(new char[] { '"', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    values.Clear();
+                    for (int idx = 0; idx < splitStr.Count(); idx++)
+                    {
+                        values.Add(Convert.ToSingle(splitStr[idx]));
+                    }
 
-            //if (errStr.Length > 0)
-            //{
-            //    FileInfo errInfo = new FileInfo();
-            //    errInfo.FileInfoText = errStr.ToString();
-            //    errInfo.ShowDialog();
-            //}
+                    absTime = values[channels.IndexOf("Time")];
+                    offsetTime = offsetTime < 0.0F ? absTime : offsetTime;
+                    absTime -= offsetTime;
+                    YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Time"].AddPoint(absTime, absTime);
+                    string channelName = "";
+                    if ((channels.Contains("GPS_Update")) &&
+                        (values[channels.IndexOf("GPS_Update")] == 1.0F))
+                    {
+                        for (int gpsIdx = 0; gpsIdx < gpsNames.Count(); gpsIdx++)
+                        {
+                            if (!channels.Contains(gpsNames[gpsIdx]))
+                            {
+                                continue;
+                            }
+                            channelName = gpsNames[gpsIdx] + "(TA)";
+                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey(channelName))
+                            {
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel(channelName, "GPS " + channelName, "GPS(TA)", 1.0F);
+                            }
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels[channelName].AddPoint(absTime, values[channels.IndexOf(gpsNames[gpsIdx])]);
+                        }
+                    }
+                    for (int accelIdx = 0; accelIdx < accelNames.Count(); accelIdx++)
+                    {
+                        if (!channels.Contains(accelNames[accelIdx]))
+                        {
+                            continue;
+                        }
+                        channelName = accelNames[accelIdx] + "(TA)";
+                        if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey(channelName))
+                        {
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel(channelName, "ACCEL " + channelName, "Accel(TA)", 1.0F);
+                        }
+                        YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels[channelName].AddPoint(absTime, values[channels.IndexOf(accelNames[accelIdx])]);
+                    }
+                    if ((channels.Contains("OBD_Update")) && 
+                        (values[channels.IndexOf("OBD_Update")] == 1.0F))
+                    {
+                        for (int channelIdx = channels.IndexOf("OBD_Update") + 1; channelIdx < channels.Count; channelIdx++)
+                        {
+                            channelName = channels[channelIdx] + "(TA)";
+                            if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey(channels[channelIdx]))
+                            {
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel(channelName, "OBDII " + channelName, "OBDII(TA)", 1.0F);
+                            }
+                            YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels[channelName].AddPoint(absTime, values[channelIdx]);
+                        }
+                    }
+                }
+            }
+            Cursor = Cursors.Default;
             UpdateData();
         }
         public void UpdateData()

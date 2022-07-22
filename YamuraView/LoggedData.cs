@@ -249,8 +249,8 @@ namespace YamuraView
             {
                 DataPoints.Add(timeStamp, new DataPoint(value));
             }
-            timeRange[0] = value < timeRange[0] ? value : timeRange[0];
-            timeRange[1] = value > timeRange[1] ? value : timeRange[1];
+            timeRange[0] = timeStamp < timeRange[0] ? timeStamp : timeRange[0];
+            timeRange[1] = timeStamp > timeRange[1] ? timeStamp : timeRange[1];
             dataRange[0] = value < dataRange[0] ? value : dataRange[0];
             dataRange[1] = value > dataRange[1] ? value : dataRange[1];
         }

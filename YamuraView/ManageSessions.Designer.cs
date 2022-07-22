@@ -152,14 +152,14 @@
             // addSessions
             // 
             this.addSessions.Name = "addSessions";
-            this.addSessions.Size = new System.Drawing.Size(172, 22);
+            this.addSessions.Size = new System.Drawing.Size(180, 22);
             this.addSessions.Text = "Add Session(s)";
             this.addSessions.Click += new System.EventHandler(this.addSessionMenuItem_Click);
             // 
             // removeSessions
             // 
             this.removeSessions.Name = "removeSessions";
-            this.removeSessions.Size = new System.Drawing.Size(172, 22);
+            this.removeSessions.Size = new System.Drawing.Size(180, 22);
             this.removeSessions.Text = "Remove Session(s)";
             this.removeSessions.Click += new System.EventHandler(this.removeSessionsMenuItem_Click);
             // 
