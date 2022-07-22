@@ -43,6 +43,8 @@
             this.colSession = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colMinVal = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colMaxVal = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -137,7 +139,9 @@
             this.colChannel,
             this.colSession,
             this.colFileName,
-            this.colValue});
+            this.colValue,
+            this.colMinVal,
+            this.colMaxVal});
             this.channelListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.channelListView.Location = new System.Drawing.Point(0, 0);
             this.channelListView.Name = "channelListView";
@@ -187,6 +191,20 @@
             this.colValue.HeaderText = "Value";
             this.colValue.Name = "colValue";
             // 
+            // colMinVal
+            // 
+            this.colMinVal.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.colMinVal.HeaderText = "Min";
+            this.colMinVal.Name = "colMinVal";
+            this.colMinVal.Width = 49;
+            // 
+            // colMaxVal
+            // 
+            this.colMaxVal.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.colMaxVal.HeaderText = "Max";
+            this.colMaxVal.Name = "colMaxVal";
+            this.colMaxVal.Width = 52;
+            // 
             // StripChart
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -226,5 +244,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colSession;
         private System.Windows.Forms.DataGridViewTextBoxColumn colFileName;
         private System.Windows.Forms.DataGridViewTextBoxColumn colValue;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colMinVal;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colMaxVal;
     }
 }

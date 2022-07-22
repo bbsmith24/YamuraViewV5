@@ -224,6 +224,8 @@ namespace YamuraView
                 channelListView.Rows[channelListView.Rows.Count - 1].Cells["colSession"].Value = channels[channels.Count - 1].SessionIdx.ToString();
                 channelListView.Rows[channelListView.Rows.Count - 1].Cells["colFileName"].Value = shortName;
                 channelListView.Rows[channelListView.Rows.Count - 1].Cells["colValue"].Value = (channels[channels.Count - 1].dataChannel.dataPoints.ElementAt(0).Value as DataPoint).PointValue.ToString();
+                channelListView.Rows[channelListView.Rows.Count - 1].Cells["colMinVal"].Value = (channels[channels.Count - 1].dataChannel.DataRange[0].ToString());
+                channelListView.Rows[channelListView.Rows.Count - 1].Cells["colMaxVal"].Value = (channels[channels.Count - 1].dataChannel.DataRange[1].ToString());
 
             }
             chartPanel.Invalidate();

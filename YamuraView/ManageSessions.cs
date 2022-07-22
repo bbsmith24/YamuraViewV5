@@ -518,6 +518,7 @@ namespace YamuraView
                             float longitude = (float)inFile.ReadInt32() / 10000000.0F;
                             float course = (float)inFile.ReadInt32();
                             float speed = (float)inFile.ReadInt32()/1000.0F;
+                            System.Diagnostics.Debug.WriteLine("Speed " + speed.ToString());
                             Byte SIV = inFile.ReadByte();
                             if (SIV > 0)
                             {
