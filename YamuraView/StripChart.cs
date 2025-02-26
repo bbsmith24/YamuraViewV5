@@ -16,7 +16,9 @@ namespace YamuraView
         bool dragStart = false;
         int dragSession = 0;
         int mouseLast = 0;
-
+        float[] displayScale = new float[2] { 0.0F, 0.0F };
+        float[,] axisRange = new float[2,2] { { 0.0F, 0.0F }, { 0.0F, 0.0F } };
+        float[] axisOffset = new float[2] { 0.0F, 0.0F };
         List<ChannelDisplayInfo> channels = new List<ChannelDisplayInfo>();
         public StripChart()
         {
@@ -59,7 +61,7 @@ namespace YamuraView
                     continue;
                 }
                 // data and axis present, need to regenerate unscaled path
-                if((channel.ChannelPath == null) || 
+                if ((channel.ChannelPath == null) ||
                    (channel.ChannelPath.PointCount == 0))
                 {
                     initialValue = true;
@@ -93,10 +95,8 @@ namespace YamuraView
             }
             #endregion
             #region get max range for X and Y axes
-            float[] xAxisRange = new float[2] { float.MaxValue, float.MinValue };
-            float[] yAxisRange = new float[2] { float.MaxValue, float.MinValue };
+            axisRange = new float[2, 2] {{ float.MaxValue, float.MinValue },{ float.MaxValue, float.MinValue } };
             Dictionary<string, float[]> yAxesRanges = new Dictionary<string, float[]>();
-            //float[] yAxisRange = new float[2] { float.MaxValue, float.MinValue };
             foreach (ChannelDisplayInfo channel in channels)
             {
                 #region skip if channel is not displayed
@@ -105,12 +105,11 @@ namespace YamuraView
                     continue;
                 }
                 #endregion
-                System.Diagnostics.Debug.WriteLine(channel.dataChannel.ChannelName + " (" + channel.SessionIdx + ")");
-                System.Diagnostics.Debug.WriteLine("X axis " + channel.axisChannel.DataRange[0] + " to " + channel.axisChannel.DataRange[1]);
-                System.Diagnostics.Debug.WriteLine("Y axis " + channel.dataChannel.DataRange[0] + " to " + channel.dataChannel.DataRange[1]);
 
-                xAxisRange[0] = xAxisRange[0] < channel.axisChannel.DataRange[0] + channel.AxisOffsetX[0] ? xAxisRange[0] : channel.axisChannel.DataRange[0] + channel.AxisOffsetX[0];
-                xAxisRange[1] = xAxisRange[1] > channel.axisChannel.DataRange[1] + channel.AxisOffsetX[0] ? xAxisRange[1] : channel.axisChannel.DataRange[1] + channel.AxisOffsetX[0];
+                axisRange[0, 0] = axisRange[0, 0] < channel.axisChannel.DataRange[0] + channel.AxisOffsetX[0] ? axisRange[0, 0] : channel.axisChannel.DataRange[0] + channel.AxisOffsetX[0];
+                axisRange[0, 1] = axisRange[0, 1] > channel.axisChannel.DataRange[1] + channel.AxisOffsetX[0] ? axisRange[0, 1] : channel.axisChannel.DataRange[1] + channel.AxisOffsetX[0];
+                axisRange[1, 0] = axisRange[1, 0] < channel.dataChannel.DataRange[0] ? axisRange[1, 0] : channel.dataChannel.DataRange[0];
+                axisRange[1, 1] = axisRange[1, 1] > channel.axisChannel.DataRange[1] ? axisRange[1, 1] : channel.dataChannel.DataRange[1];
 
                 if (yAxesRanges.ContainsKey(channel.dataChannel.ChannelName))
                 {
@@ -121,16 +120,13 @@ namespace YamuraView
                 {
                     yAxesRanges.Add(channel.dataChannel.ChannelName, new float[2] { channel.dataChannel.DataRange[0], channel.dataChannel.DataRange[1] });
                 }
+
             }
 
-            //xAxisRange[0] = 0.0F;
-            System.Diagnostics.Debug.WriteLine("Overall");
-            System.Diagnostics.Debug.WriteLine("X axis " + xAxisRange[0] + " to " + xAxisRange[1]);
             foreach (KeyValuePair<string, float[]> yAxis in yAxesRanges)
             {
-                yAxisRange[0] = yAxisRange[0] < yAxis.Value[0] ? yAxisRange[0] : yAxis.Value[0];
-                yAxisRange[1] = yAxisRange[1] > yAxis.Value[1] ? yAxisRange[1] : yAxis.Value[1];
-                System.Diagnostics.Debug.WriteLine("Y axis " + yAxis.Key + yAxis.Value[0] + " to " + yAxis.Value[1]);
+                axisRange[1, 0] = axisRange[1, 0] < yAxis.Value[0] ? axisRange[1, 0] : yAxis.Value[0];
+                axisRange[1, 1] = axisRange[1, 1] > yAxis.Value[1] ? axisRange[1, 1] : yAxis.Value[1];
             }
             #endregion
             #region draw path to display
@@ -138,7 +134,7 @@ namespace YamuraView
             int width = chartPanel.Width;
             int height = chartPanel.Height;
             // x and y scale
-            float[] displayScale = new float[] { 1.0F, 1.0F };
+            //displayScale = new float[] { 1.0F, 1.0F };
             // process all channels
             foreach (ChannelDisplayInfo channel in channels)
             {
@@ -158,8 +154,8 @@ namespace YamuraView
 
                     //displayScale[0] = (float)clipRect.Width / (channel.axisChannel.DataRange[1] - channel.axisChannel.DataRange[0]);
                     //displayScale[1] = (float)clipRect.Height / (channel.dataChannel.DataRange[1] - channel.dataChannel.DataRange[0]);
-                    displayScale[0] = (float)clipRect.Width / (xAxisRange[1] - xAxisRange[0]);
-                    float yRange = yAxisRange[1] - yAxisRange[0];//(yAxesRanges[channel.dataChannel.ChannelName][1] - yAxesRanges[channel.dataChannel.ChannelName][0]);
+                    displayScale[0] = (float)clipRect.Width / (axisRange[0, 1] - axisRange[0, 0]);
+                    float yRange = axisRange[1, 1] - axisRange[1, 0];//(yAxesRanges[channel.dataChannel.ChannelName][1] - yAxesRanges[channel.dataChannel.ChannelName][0]);
                     yRange *= 1.01F;
                     displayScale[1] = (float)clipRect.Height / yRange;
                     displayScale[1] *= -1.0F;
@@ -176,7 +172,7 @@ namespace YamuraView
                     //                                 ChartOwner.ChartAxes[xChannelName].AssociatedChannels[curChanInfo.Value.RunIndex.ToString() + "-" + xChannelName].AxisOffset[0],  // offset X
                     //                                 -1 * yAxis.Value.AxisDisplayRange[0] +
                     //                                 ChartOwner.ChartAxes[xChannelName].AssociatedChannels[curChanInfo.Value.RunIndex.ToString() + "-" + xChannelName].AxisOffset[1]);  // offset Y
-                    chartGraphics.TranslateTransform(-1 * xAxisRange[0] + channel.AxisOffsetX[0],
+                    chartGraphics.TranslateTransform(-1 * axisRange[0, 0] + channel.AxisOffsetX[0],
                                                      -1 * (yAxesRanges[channel.dataChannel.ChannelName][1] + (yRange * 0.01F)));// channel.AxisOffsetY[0]);
                     
 
@@ -263,11 +259,6 @@ namespace YamuraView
 
                 int sessionIdx = Convert.ToInt32(channelListView.Rows[e.RowIndex].Cells[3].Value);
                 string channelName = Convert.ToString(channelListView.Rows[e.RowIndex].Cells[2].Value);
-
-                System.Diagnostics.Debug.Write("CellContentClick row " + e.RowIndex + " " + e.ColumnIndex);
-                System.Diagnostics.Debug.Write(" Cell value " + channelListView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value);
-                System.Diagnostics.Debug.WriteLine(" channel " + channelName);
-                System.Diagnostics.Debug.WriteLine(" session " + sessionIdx);
                 foreach(ChannelDisplayInfo channel in channels)
                 {
                     if((channel.SessionIdx == sessionIdx) && (channel.dataChannel.ChannelName == channelName))
@@ -348,7 +339,8 @@ namespace YamuraView
 
         private void chartPanel_MouseMove(object sender, MouseEventArgs e)
         {
-            if(e.Button == MouseButtons.Left)
+            #region drag to align sessions
+            if (e.Button == MouseButtons.Left)
             {
                 if (dragStart == true)
                 {
@@ -365,12 +357,62 @@ namespace YamuraView
                 {
                     dragStart = true;
                     int curRow = channelListView.SelectedRows[0].Index;
-                    dragSession = Convert.ToInt32( channelListView.Rows[curRow].Cells[3].Value);
+                    dragSession = Convert.ToInt32(channelListView.Rows[curRow].Cells[3].Value);
 
                 }
                 mouseLast = e.Location.X;
 
             }
+            #endregion
+            #region mouse move to update values at position and cursor in other views
+            else if ((e.Button == MouseButtons.None) && 
+                     (channels.Count > 0))
+            {
+                DataChannel xAxisChannel = channels[0].axisChannel;// YamuraViewMain.dataLogger.sessionData[0].channels["Time"];
+                float[] cursorPos = new float[2]  { (float)e.Location.X, (float)e.Location.Y };
+                float[] cursorOffset = new float[2] { -1 * axisRange[0, 0] + 0.0F, 0.0F };
+                cursorPos[0] = (cursorPos[0] / displayScale[0]) + cursorOffset[0];
+                DataPoint channelValue;
+                float findLowestAbove = 0.0F;
+                float findHighestBelow = 0.0F;
+                float findAxisTime = 0.0F;
+System.Diagnostics.Debug.Write("Cursor at " + cursorPos[0].ToString());
+                for (int channelIdx = 0; channelIdx < channels.Count; channelIdx++)
+                {
+                    System.Diagnostics.Debug.Write(" " + channels[channelIdx].dataChannel.ChannelName + " ");
+                    if(xAxisChannel.ChannelName == "Time")
+                    {
+                        findAxisTime = cursorPos[0];
+System.Diagnostics.Debug.Write("(time)\t");
+                    }
+                    else
+                    {
+System.Diagnostics.Debug.Write("(cursor dist)\t");
+                        findLowestAbove = YamuraViewMain.dataLogger.sessionData[channels[channelIdx].SessionIdx].channels["Distance-Time"].DataPoints.Keys.Where(x => x > cursorPos[0]).FirstOrDefault();
+                        findHighestBelow = YamuraViewMain.dataLogger.sessionData[channels[channelIdx].SessionIdx].channels["Distance-Time"].DataPoints.Keys.OrderByDescending(x => x).Where(x => x > cursorPos[0]).FirstOrDefault();
+System.Diagnostics.Debug.Write(findLowestAbove.ToString() + " - " + findHighestBelow .ToString() + " (found dist)\t");
+                        findAxisTime = YamuraViewMain.dataLogger.sessionData[channels[channelIdx].SessionIdx].channels["Distance-Time"].DataPoints[findLowestAbove].PointValue;
+                        cursorPos[0] = channels[channelIdx].dataChannel.DataPoints[findAxisTime].PointValue;
+//System.Diagnostics.Debug.Write("Cursor at " + xAxisChannel.ChannelName + " " + findAxisTime + "ms\t"+ cursorPos[0].ToString() + "s\t");
+
+                    }
+                    findLowestAbove = channels[channelIdx].dataChannel.DataPoints.Keys.Where(x => x > findAxisTime).FirstOrDefault();
+                    findHighestBelow = channels[channelIdx].dataChannel.DataPoints.Keys.OrderByDescending(x => x).Where(x => x < findAxisTime).FirstOrDefault();
+
+System.Diagnostics.Debug.Write(" found time " + findHighestBelow.ToString() + " channel value ");
+
+                    if (channels[channelIdx].dataChannel.DataPoints.TryGetValue(findHighestBelow, out channelValue))
+                    {
+                        System.Diagnostics.Debug.Write(channelValue.PointValue.ToString() + " ");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.Write("--- ");
+                    }
+System.Diagnostics.Debug.WriteLine(" ");
+                }
+            };
+            #endregion
         }
 
         private void chartPanel_MouseUp(object sender, MouseEventArgs e)

@@ -177,19 +177,24 @@
             // 
             // colSession
             // 
+            this.colSession.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
             this.colSession.HeaderText = "Session";
             this.colSession.Name = "colSession";
+            this.colSession.Width = 69;
             // 
             // colFileName
             // 
+            this.colFileName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
             this.colFileName.HeaderText = "File";
             this.colFileName.Name = "colFileName";
+            this.colFileName.Width = 48;
             // 
             // colValue
             // 
-            this.colValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.colValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
             this.colValue.HeaderText = "Value";
             this.colValue.Name = "colValue";
+            this.colValue.Width = 59;
             // 
             // colMinVal
             // 

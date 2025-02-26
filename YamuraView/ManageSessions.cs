@@ -518,7 +518,6 @@ namespace YamuraView
                             float longitude = (float)inFile.ReadInt32() / 10000000.0F;
                             float course = (float)inFile.ReadInt32();
                             float speed = (float)inFile.ReadInt32()/1000.0F;
-                            System.Diagnostics.Debug.WriteLine("Speed " + speed.ToString());
                             Byte SIV = inFile.ReadByte();
                             if (SIV > 0)
                             {
@@ -549,16 +548,17 @@ namespace YamuraView
                                 {
                                     YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Distance-GPS", "GPS Distance", "GPS", 1.0F);
                                 }
-                                // add data to channel
+                                if (!YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels.ContainsKey("Distance-Time"))
+                                {
+                                    YamuraViewMain.dataLogger.sessionData[logSessionsIdx].AddChannel("Distance-Time", "Distance-Time", "GPS", 1.0F);
+                                }
+                                // add data to channels
                                 YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Latitude"].AddPoint(absTime, latitude);
                                 YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Longitude"].AddPoint(absTime, longitude);
                                 YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Speed-GPS"].AddPoint(absTime, speed);
                                 YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Heading-GPS"].AddPoint(absTime, course);
                                 YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Distance-GPS"].AddPoint(absTime, gpsDist);
-                            }
-                            else
-                            {
-                                System.Diagnostics.Debug.WriteLine("no satellites...");
+                                YamuraViewMain.dataLogger.sessionData[logSessionsIdx].channels["Distance-Time"].AddPoint(gpsDist, absTime);
                             }
                         }
                         // IR Tire temp node (0x60-0x6F)
@@ -701,8 +701,9 @@ namespace YamuraView
                             //outStr.AppendFormat("Unknown record type 0x{0:X02}{1}", (byte)recordType, System.Environment.NewLine);
                         }
                     }
-                    catch
+                    catch (Exception e)
                     {
+                        System.Diagnostics.Debug.WriteLine(e.Message);
                         break;
                     }
                 }
